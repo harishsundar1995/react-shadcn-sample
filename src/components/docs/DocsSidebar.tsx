@@ -59,7 +59,7 @@ const DocsSidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 h-screen sticky top-16 overflow-y-auto">
+    <aside className="w-64 bg-white border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
       <div className="p-4">
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Select your SDK</h3>

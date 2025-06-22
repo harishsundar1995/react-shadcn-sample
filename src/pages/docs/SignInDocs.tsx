@@ -1,10 +1,89 @@
 
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Copy, Check } from 'lucide-react';
 
 const SignInDocs = () => {
+  const [copiedSnippet, setCopiedSnippet] = useState('');
+
+  const copyToClipboard = async (text: string, snippetId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSnippet(snippetId);
+      setTimeout(() => setCopiedSnippet(''), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const CodeSnippet = ({ code, snippetId, language = 'javascript' }: { code: string; snippetId: string; language?: string }) => (
+    <div className="relative">
+      <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
+          <span className="text-xs text-gray-400 font-medium">{language}</span>
+          <button
+            onClick={() => copyToClipboard(code, snippetId)}
+            className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors"
+          >
+            {copiedSnippet === snippetId ? (
+              <>
+                <Check className="w-3 h-3" />
+                Copied
+              </>
+            ) : (
+              <>
+                <Copy className="w-3 h-3" />
+                Copy
+              </>
+            )}
+          </button>
+        </div>
+        <pre className="p-4 text-sm text-green-400 overflow-x-auto">
+          <code>{code}</code>
+        </pre>
+      </div>
+    </div>
+  );
+
+  const usageCode = `import { SignIn } from '@clerk/clerk-react'
+
+export default function SignInPage() {
+  return (
+    <div className="flex justify-center items-center min-h-screen">
+      <SignIn 
+        redirectUrl="/dashboard"
+        signUpUrl="/sign-up"
+      />
+    </div>
+  )
+}`;
+
+  const customizationCode = `<SignIn 
+  appearance={{
+    elements: {
+      formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
+      card: 'shadow-xl border-0'
+    }
+  }}
+/>`;
+
+  const mountSignInCode = `import { Clerk } from '@clerk/clerk-js'
+
+const clerk = new Clerk(clerkPubKey)
+await clerk.load()
+
+const signInDiv = document.getElementById('sign-in')
+clerk.mountSignIn(signInDiv)`;
+
+  const unmountSignInCode = `clerk.unmountSignIn(signInDiv)`;
+
+  const openSignInCode = `clerk.openSignIn()`;
+
+  const closeSignInCode = `clerk.closeSignIn()`;
+
   return (
     <div className="p-8">
       <div className="mb-6">
@@ -85,7 +164,7 @@ const SignInDocs = () => {
           customize the component by passing additional props.
         </p>
 
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Properties</h2>
+        <h2 id="properties" className="text-2xl font-semibold text-gray-900 mb-4 scroll-mt-20">Properties</h2>
         
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-8">
           <table className="w-full">
@@ -122,42 +201,45 @@ const SignInDocs = () => {
           </table>
         </div>
 
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Usage</h2>
+        <h2 id="usage" className="text-2xl font-semibold text-gray-900 mb-4 scroll-mt-20">Usage</h2>
         
-        <div className="bg-gray-900 rounded-lg p-6 mb-8">
-          <pre className="text-green-400 text-sm">
-            <code>{`import { SignIn } from '@clerk/clerk-react'
-
-export default function SignInPage() {
-  return (
-    <div className="flex justify-center items-center min-h-screen">
-      <SignIn 
-        redirectUrl="/dashboard"
-        signUpUrl="/sign-up"
-      />
-    </div>
-  )
-}`}</code>
-          </pre>
+        <div className="mb-8">
+          <CodeSnippet code={usageCode} snippetId="usage-example" language="tsx" />
         </div>
 
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Customization</h2>
+        {/* Usage with frameworks methods */}
+        <h3 id="mountSignIn" className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-20">mountSignIn()</h3>
+        <p className="text-gray-600 mb-4">Mounts the SignIn component to the specified DOM element.</p>
+        <div className="mb-8">
+          <CodeSnippet code={mountSignInCode} snippetId="mount-signin" language="javascript" />
+        </div>
+
+        <h3 id="unmountSignIn" className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-20">unmountSignIn()</h3>
+        <p className="text-gray-600 mb-4">Unmounts the SignIn component from the DOM.</p>
+        <div className="mb-8">
+          <CodeSnippet code={unmountSignInCode} snippetId="unmount-signin" language="javascript" />
+        </div>
+
+        <h3 id="openSignIn" className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-20">openSignIn()</h3>
+        <p className="text-gray-600 mb-4">Opens the SignIn component in a modal.</p>
+        <div className="mb-8">
+          <CodeSnippet code={openSignInCode} snippetId="open-signin" language="javascript" />
+        </div>
+
+        <h3 id="closeSignIn" className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-20">closeSignIn()</h3>
+        <p className="text-gray-600 mb-4">Closes the SignIn modal.</p>
+        <div className="mb-8">
+          <CodeSnippet code={closeSignInCode} snippetId="close-signin" language="javascript" />
+        </div>
+
+        <h2 id="customization" className="text-2xl font-semibold text-gray-900 mb-4 scroll-mt-20">Customization</h2>
         
         <p className="text-gray-600 mb-4">
           The SignIn component can be customized using the appearance prop to match your application's design system.
         </p>
 
-        <div className="bg-gray-900 rounded-lg p-6">
-          <pre className="text-green-400 text-sm">
-            <code>{`<SignIn 
-  appearance={{
-    elements: {
-      formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
-      card: 'shadow-xl border-0'
-    }
-  }}
-/>`}</code>
-          </pre>
+        <div className="mb-8">
+          <CodeSnippet code={customizationCode} snippetId="customization-example" language="tsx" />
         </div>
       </div>
     </div>
