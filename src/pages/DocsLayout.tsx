@@ -1,8 +1,7 @@
-
-import { Outlet } from 'react-router-dom';
-import Header from '@/components/Header';
-import DocsSidebar from '@/components/docs/DocsSidebar';
-import DocsPropertiesPanel from '@/components/docs/DocsPropertiesPanel';
+import { Outlet } from "react-router-dom";
+import Header from "@/components/Header";
+import DocsSidebar from "@/components/docs/DocsSidebar";
+import DocsPropertiesPanel from "@/components/docs/DocsPropertiesPanel";
 
 const DocsLayout = () => {
   return (
@@ -10,10 +9,12 @@ const DocsLayout = () => {
       <Header />
       <div className="flex">
         <DocsSidebar />
-        <main className="flex-1 min-w-0 max-w-4xl">
+        <main className="flex-1 min-w-0 px-8">
           <Outlet />
         </main>
-        <DocsPropertiesPanel />
+        <div className="ml-auto">
+          <DocsPropertiesPanel />
+        </div>
       </div>
     </div>
   );
