@@ -55,41 +55,53 @@ const SignInDocs = () => {
     </div>
   );
 
-  const usageCode = `import { SignIn } from '@clerk/clerk-react'
+  const usageCode = `import { useAuth0 } from '@auth0/auth0-react'
+import { SignInButton } from '@/components/SignInButton'
 
 export default function SignInPage() {
+  const { loginWithRedirect } = useAuth0()
+  
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <SignIn 
-        redirectUrl="/dashboard"
-        signUpUrl="/sign-up"
+      <SignInButton 
+        onSignIn={() => loginWithRedirect()}
       />
     </div>
   )
 }`;
 
-  const customizationCode = `<SignIn 
-  appearance={{
-    elements: {
-      formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
-      card: 'shadow-xl border-0'
-    }
-  }}
+  const customizationCode = `import { SignInButton } from '@/components/SignInButton'
+
+<SignInButton 
+  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+  onSignIn={() => loginWithRedirect()}
 />`;
 
-  const mountSignInCode = `import { Clerk } from '@clerk/clerk-js'
+  const authHookCode = `import { useAuth0 } from '@auth0/auth0-react'
 
-const clerk = new Clerk(clerkPubKey)
-await clerk.load()
+const { 
+  loginWithRedirect, 
+  logout, 
+  user, 
+  isAuthenticated, 
+  isLoading 
+} = useAuth0()`;
 
-const signInDiv = document.getElementById('sign-in')
-clerk.mountSignIn(signInDiv)`;
+  const logoutCode = `logout({ returnTo: window.location.origin })`;
 
-  const unmountSignInCode = `clerk.unmountSignIn(signInDiv)`;
+  const protectedRouteCode = `import { useAuth0 } from '@auth0/auth0-react'
 
-  const openSignInCode = `clerk.openSignIn()`;
-
-  const closeSignInCode = `clerk.closeSignIn()`;
+function ProtectedComponent() {
+  const { isAuthenticated, isLoading } = useAuth0()
+  
+  if (isLoading) return <div>Loading...</div>
+  
+  if (!isAuthenticated) {
+    return <div>Please sign in to access this content</div>
+  }
+  
+  return <div>Protected content</div>
+}`;
 
   return (
     <div className="p-8">
@@ -97,10 +109,10 @@ clerk.mountSignIn(signInDiv)`;
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
           <span>UI Components</span>
           <span>/</span>
-          <span>&lt;SignIn /&gt;</span>
+          <span>&lt;SignInButton /&gt;</span>
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          &lt;SignIn /&gt; component
+          &lt;SignInButton /&gt; component
         </h1>
       </div>
 
@@ -109,16 +121,12 @@ clerk.mountSignIn(signInDiv)`;
         <p className="text-lg text-gray-600 mb-8">
           The{" "}
           <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-            &lt;SignIn /&gt;
+            &lt;SignInButton /&gt;
           </code>{" "}
-          component renders a UI to allow users to sign in or sign up by
-          default. The functionality of the{" "}
-          <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-            &lt;SignIn /&gt;
-          </code>{" "}
-          component is controlled by the instance settings you specify in the
-          Dashboard, such as sign-in and sign-up options and social connections.
-          You can further customize the component by passing additional props.
+          component renders a UI to allow users to sign in using Auth0. The
+          component integrates with Auth0's authentication service and can be
+          customized to match your application's design system. You can further
+          customize the component by passing additional props.
         </p>
 
         <h2
@@ -146,35 +154,35 @@ clerk.mountSignIn(signInDiv)`;
             <tbody className="bg-white divide-y divide-gray-200">
               <tr>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                  redirectUrl
+                  onSignIn
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <Badge variant="outline">string</Badge>
+                  <Badge variant="outline">function</Badge>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
-                  The URL to redirect to after successful sign-in
+                  Callback function triggered when sign-in button is clicked
                 </td>
               </tr>
               <tr>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                  signUpUrl
+                  className
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <Badge variant="outline">string</Badge>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
-                  The URL of the sign-up page
+                  CSS classes to customize the button appearance
                 </td>
               </tr>
               <tr>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                  forceRedirectUrl
+                  disabled
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <Badge variant="outline">string</Badge>
+                  <Badge variant="outline">boolean</Badge>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
-                  Forces redirect to this URL after sign-in
+                  Disables the sign-in button
                 </td>
               </tr>
             </tbody>
@@ -196,69 +204,55 @@ clerk.mountSignIn(signInDiv)`;
           />
         </div>
 
-        {/* Usage with frameworks methods */}
+        {/* Usage with Auth0 hooks */}
         <h3
-          id="mountSignIn"
+          id="useAuth0Hook"
           className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-24"
         >
-          mountSignIn()
+          useAuth0() Hook
         </h3>
         <p className="text-gray-600 mb-4">
-          Mounts the SignIn component to the specified DOM element.
+          The useAuth0 hook provides access to Auth0 authentication methods and
+          state.
         </p>
         <div className="mb-8">
           <CodeSnippet
-            code={mountSignInCode}
-            snippetId="mount-signin"
+            code={authHookCode}
+            snippetId="auth-hook"
             language="javascript"
           />
         </div>
 
         <h3
-          id="unmountSignIn"
+          id="logout"
           className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-24"
         >
-          unmountSignIn()
+          logout()
         </h3>
         <p className="text-gray-600 mb-4">
-          Unmounts the SignIn component from the DOM.
+          Logs out the current user and redirects to the specified URL.
         </p>
         <div className="mb-8">
           <CodeSnippet
-            code={unmountSignInCode}
-            snippetId="unmount-signin"
+            code={logoutCode}
+            snippetId="logout"
             language="javascript"
           />
         </div>
 
         <h3
-          id="openSignIn"
+          id="protectedRoute"
           className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-24"
         >
-          openSignIn()
+          Protected Routes
         </h3>
         <p className="text-gray-600 mb-4">
-          Opens the SignIn component in a modal.
+          How to create protected components that require authentication.
         </p>
         <div className="mb-8">
           <CodeSnippet
-            code={openSignInCode}
-            snippetId="open-signin"
-            language="javascript"
-          />
-        </div>
-
-        <h3
-          id="closeSignIn"
-          className="text-xl font-semibold text-gray-900 mb-4 scroll-mt-24"
-        >
-          closeSignIn()
-        </h3>
-        <p className="text-gray-600 mb-4">Closes the SignIn modal.</p>
-        <div className="mb-8">
-          <CodeSnippet
-            code={closeSignInCode}
-            snippetId="close-signin"
+            code={protectedRouteCode}
+            snippetId="protected-route"
             language="javascript"
           />
         </div>
@@ -271,8 +265,8 @@ clerk.mountSignIn(signInDiv)`;
         </h2>
 
         <p className="text-gray-600 mb-4">
-          The SignIn component can be customized using the appearance prop to
-          match your application's design system.
+          The SignInButton component can be customized using CSS classes and
+          styled to match your application's design system.
         </p>
 
         <div className="mb-8">
