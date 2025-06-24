@@ -19,40 +19,43 @@ import { useTranslation } from "react-i18next";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Auth0Provider
-          domain={import.meta.env.VITE_AUTH0_DOMAIN}
-          clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-          authorizationParams={{ redirect_uri: window.location.origin }}
-        >
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/playground" element={<Playground />} />
-            <Route path="/accounts" element={<AccountsLayout />}>
-              <Route index element={<Profile />} />
-              <Route path="security" element={<SecurityPage />} />
-              <Route path="payment" element={<Payment />} />
-              <Route path="orders" element={<Orders />} />
-            </Route>
-            <Route path="/docs" element={<DocsLayout />}>
-              <Route index element={<ComponentsOverview />} />
-              <Route
-                path="components/overview"
-                element={<ComponentsOverview />}
-              />
-              <Route path="components/sign-in" element={<SignInDocs />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Auth0Provider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const { i18n } = useTranslation();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Auth0Provider
+            domain={import.meta.env.VITE_AUTH0_DOMAIN}
+            clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+            authorizationParams={{ redirect_uri: window.location.origin }}
+          >
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/playground" element={<Playground />} />
+              <Route path="/accounts" element={<AccountsLayout />}>
+                <Route index element={<Profile />} />
+                <Route path="security" element={<SecurityPage />} />
+                <Route path="payment" element={<Payment />} />
+                <Route path="orders" element={<Orders />} />
+              </Route>
+              <Route path="/docs" element={<DocsLayout />}>
+                <Route index element={<ComponentsOverview />} />
+                <Route
+                  path="components/overview"
+                  element={<ComponentsOverview />}
+                />
+                <Route path="components/sign-in" element={<SignInDocs />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Auth0Provider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
